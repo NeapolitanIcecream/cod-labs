@@ -25,7 +25,14 @@ module dm(
 		input wire 	[31:0]	wdata,
 		output wire	[31:0]	rdata);
 
+	parameter NMEM_DM = 128;
+	parameter DM_DATA = "dm_data.txt";  // file to read data from
 	reg [31:0] mem [0:127];  // 32-bit memory with 128 entries
+	integer fd;
+
+	initial begin
+		$readmemh(DM_DATA, mem, 0, NMEM_DM-1);
+	end
 
 	always @(posedge clk) begin
 		if (wr) begin

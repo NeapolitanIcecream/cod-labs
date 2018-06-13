@@ -27,11 +27,13 @@
 `define DEBUG_CPU_STAGES 0
 `endif
 
-module cpu(
+module top(
 		input wire clk);
 
-	parameter NMEM = 20;  // number in instruction memory
-	parameter IM_DATA = "im_data.txt";
+	parameter NMEM_IM = 59;  // number in instruction memory
+	parameter IM_DATA = "IMem_init.coe";
+	parameter NMEM_DM = 128;
+	parameter DM_DATA = "Dmem_init.coe";
 
 	wire regwrite_s5;
 	wire [4:0] wrreg_s5;
@@ -42,7 +44,7 @@ module cpu(
 	initial begin
 		if (`DEBUG_CPU_STAGES) begin
 			$display("if_pc,    if_instr, id_regrs, id_regrt, ex_alua,  ex_alub,  ex_aluctl, mem_memdata, mem_memread, mem_memwrite, wb_regdata, wb_regwrite");
-			$monitor("%x, %x, %x, %x, %x, %x, %x,         %x,    %x,           %x,            %x,   %x",
+			$monitor("%x, %x, %x, %x, %x, %x, %x,         %x,    %x,           %x,            %x,   %x\n",
 					pc,				/* if_pc */
 					inst,			/* if_instr */
 					data1,			/* id_regrs */
@@ -104,8 +106,8 @@ module cpu(
 	// instruction memory
 	wire [31:0] inst;
 	wire [31:0] inst_s2;
-	im #(.NMEM(NMEM), .IM_DATA(IM_DATA))
-		im1(.clk(clk), .addr(pc), .data(inst));
+	im #(.NMEM_IM(NMEM_IM), .IM_DATA(IM_DATA))
+		InstructionMemory(.clk(clk), .addr(pc), .data(inst));
 	regr #(.N(32)) regr_im_s2(.clk(clk),
 						.hold(stall_s1_s2), .clear(flush_s1),
 						.in(inst), .out(inst_s2));
@@ -319,7 +321,7 @@ module cpu(
 
 	// data memory
 	wire [31:0] rdata;
-	dm dm1(.clk(clk), .addr(alurslt_s4[8:2]), .rd(memread_s4), .wr(memwrite_s4),
+	dm #(.NMEM_DM(NMEM_DM), .DM_DATA(DM_DATA))DataMemory(.clk(clk), .addr(alurslt_s4[8:2]), .rd(memread_s4), .wr(memwrite_s4),
 			.wdata(data2_s4), .rdata(rdata));
 	// pass read data to stage 5
 	wire [31:0] rdata_s5;
@@ -410,5 +412,3 @@ module cpu(
 	// }}}
 
 endmodule
-
-// vim:foldmethod=marker

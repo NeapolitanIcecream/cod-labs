@@ -26,14 +26,14 @@ module im(
 		input wire 	[31:0] 	addr,
 		output wire [31:0] 	data);
 
-	parameter NMEM = 128;   // Number of memory entries,
+	parameter NMEM_IM = 128;   // Number of memory entries,
 							// not the same as the memory size
 	parameter IM_DATA = "im_data.txt";  // file to read data from
 
 	reg [31:0] mem [0:127];  // 32-bit memory with 128 entries
 
 	initial begin
-		$readmemh(IM_DATA, mem, 0, NMEM-1);
+		$readmemh(IM_DATA, mem, 0, NMEM_IM-1);
 	end
 
 	assign data = mem[addr[8:2]][31:0];

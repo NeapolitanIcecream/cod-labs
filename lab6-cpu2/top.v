@@ -28,7 +28,7 @@ module top(clk, rst_n);
 
     // memory
     MEM mem(Adr >> 2, B, clk, MemWrite, MDR);
-    
+    MEM mem(clk, Adr, MDR, MemWrite, B)
     // regfile
     Regfile regfile(
         .clk(clk), 

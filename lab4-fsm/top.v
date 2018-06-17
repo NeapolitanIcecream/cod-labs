@@ -6,7 +6,7 @@ module top(
     // ram
     wire ena, enb;
     wire [0:0]   wea;
-    wire [6:0]   addra, addrb;
+    wire [31:0]   addra, addrb;
     wire [31:0]  dina;
     wire [31:0] doutb;
 

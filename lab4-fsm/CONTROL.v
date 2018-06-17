@@ -6,8 +6,8 @@ module CONTROL(
     output reg [31:0] alu_b,
     output wire [4:0] alu_op,
     input wire [31:0] alu_out,
-    output reg [6:0] ram_raddr,
-    output reg [6:0] ram_waddr,
+    output reg [31:0] ram_raddr,
+    output reg [31:0] ram_waddr,
     output reg [5:0] reg_raddr,
     output reg [5:0] reg_waddr,
     output reg reg_wen,
@@ -16,7 +16,7 @@ module CONTROL(
     output reg [31:0] reg_wdata
 );
   assign alu_op = ram_out;
-  reg [7:0] r1 = 0, r2 = 1, rop = 100, rw = 200;
+  reg [7:0] r1 = 8'd0, r2 = 8'd1, rop = 8'd100, rw = 8'hc8;
   reg [2:0] curr_state, next_state;
   parameter s0 = 0, s1 = 1, s2 = 2, s3 = 3, s4 = 4, s5 = 5, s6 = 6, s7 = 7;
 
@@ -41,14 +41,14 @@ module CONTROL(
 
   always@(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
-      r1 <= 0;
-      r2 <= 1;
-      rop <= 100;
-      rw <= 200;
+      r1 <= 8'd0;
+      r2 <= 8'd1;
+      rop <= 8'd100;
+      rw <= 8'hc8;
     end else begin
       if (curr_state == s0) begin
         ram_raddr <= r1;
-        ram_wen <= 0;
+        ram_wen <= 8'd0;
       end else if (curr_state == s1) begin
         ram_raddr <= r2;
       end else if (curr_state == s2) begin
@@ -57,9 +57,9 @@ module CONTROL(
         // write to alu
         alu_a <= ram_out;
         // write to regfile
-        reg_waddr <= 0;
+        reg_waddr <= 8'd0;
         reg_wdata <= ram_out;
-        reg_wen <= 1;
+        reg_wen <= 8'd1;
       end else if (curr_state == s3) begin
         /* r1 arrived */
         // write to alu
@@ -71,6 +71,7 @@ module CONTROL(
       end else if (curr_state == s4) begin
         /* op arrived */
         // write to ram
+        $display("%h", rw);
         ram_waddr <= rw;
         ram_wdata <= alu_out;
         ram_wen <= 1;

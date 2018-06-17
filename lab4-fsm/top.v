@@ -1,4 +1,3 @@
-`timescale 1ns / 1ps
 module top(
     input           clk,
     input           rst_n,
@@ -7,18 +6,15 @@ module top(
     // ram
     wire ena, enb;
     wire [0:0]   wea;
-    wire [7:0]   addra, addrb;
+    wire [6:0]   addra, addrb;
     wire [31:0]  dina;
     wire [31:0] doutb;
 
     RAM ram1(
-        .clka(clk),
-        .ena(ena),
+        .clk(clk),
         .wea(wea),
         .addra(addra),
         .dina(dina),
-        .clkb(clk),
-        .enb(enb),
         .addrb(addrb),
         .doutb(doutb)
     );

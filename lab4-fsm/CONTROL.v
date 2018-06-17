@@ -1,4 +1,3 @@
-`timescale 1ns / 1ps
 module CONTROL(
     input clk,
     input rst_n,
@@ -7,8 +6,8 @@ module CONTROL(
     output reg [31:0] alu_b,
     output wire [4:0] alu_op,
     input wire [31:0] alu_out,
-    output reg [7:0] ram_raddr,
-    output reg [7:0] ram_waddr,
+    output reg [6:0] ram_raddr,
+    output reg [6:0] ram_waddr,
     output reg [5:0] reg_raddr,
     output reg [5:0] reg_waddr,
     output reg reg_wen,

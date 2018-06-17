@@ -32,7 +32,7 @@ module DM(Clk, A, WD, We, BE, RD);
                           dm_4k[A+3] <= WD[`BYTE3];
                           end
             endcase 
-            $display("%5d:[%m]写入:dm[%h] <= %h BE:%b",$time,A,WD,BE);
+            $display("%5d:写dm[%h] <= %h BE:%b",$time, A, WD, BE);
         end
     end
 

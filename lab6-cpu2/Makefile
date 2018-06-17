@@ -1,7 +1,7 @@
 CC = iverilog
 TARGET = my_multi_cycle_cpu
 IM_DATA_FILE = mem.hex
-SIMULATION_TIME = 10000
+SIMULATION_TIME = 4000
 
 all:	run
 build:
@@ -14,5 +14,4 @@ run:		build
 		./$(TARGET)
 
 clean:
-		rm -rf *.vcd
 		rm -rf $(TARGET)

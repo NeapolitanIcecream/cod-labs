@@ -1,271 +1,215 @@
 module Control(
-	clk, rst_n, opcode,
-	IorD, MemWrite, IRWrite, RegDst, MemtoReg, RegWrite, ALUSrcA, Branch, PCWrite,
-	ALUSrcB,ALUOp, PCSrc
+	input clk,rst_n,
+	input [5:0]op,funct,
+	output reg PCWrite,Branch,
+	output reg [1:0]PCSrc,
+	output reg IorD,MemWrite,IRWrite,
+	output reg MemtoReg,RegDst,RegWrite,
+	output reg ALUSrcA,
+	output reg [1:0]ALUSrcB,
+	output reg [4:0]ALUControl
    );
-	input clk, rst_n;
-	input [5:0] opcode;
-	output reg IorD, MemWrite, IRWrite, RegDst, MemtoReg, RegWrite, ALUSrcA, Branch, PCWrite;
-	output reg [1:0] ALUSrcB, ALUOp, PCSrc;
+	reg [3:0]NS,CS;
 	
-	reg [3:0] cur_state, next_state;
+	parameter addi = 6'b001000;
+	parameter add = 6'b000000;
+	parameter lw = 6'b100011;
+	parameter sw = 6'b101011;
+	parameter bgtz = 6'b000111;
+	parameter j = 6'b000010;
 	
-	always@(posedge clk or negedge rst_n) begin
-		if(~rst_n) begin
-			cur_state <= 0;
-		end else begin
-			cur_state <= next_state;
+	parameter Idle = 4'd12;         //����״̬
+	parameter Fetch = 4'd0;
+	parameter Decode = 4'd1;
+	parameter MemAdr = 4'd2;
+	parameter MemRead = 4'd3;
+	parameter MemWriteback = 4'd4;
+	parameter MemWriteS = 4'd5;
+	parameter Execute = 4'd6;
+	parameter Writeback = 4'd7;
+	parameter BranchS = 4'd8;
+	parameter ADDIExecute = 4'd9;
+	parameter ADDIWriteback = 4'd10;
+	parameter Jump = 4'd11;
+	parameter Ready = 4'd13;
+	
+	always@(posedge clk,negedge rst_n)
+	begin
+		if(~rst_n)
+			CS <= Idle;
+		else
+			CS <= NS;
+	end
+	
+	always@(rst_n,CS)
+	begin
+		NS = 4'dx;
+		case(CS)
+			Idle:
+				NS = Fetch;
+			Fetch:
+				NS = Ready;
+			Ready:
+				NS = Decode;
+			Decode:
+				case(op)
+					lw: NS = MemAdr;
+					sw: NS = MemAdr;
+					add: NS = Execute;
+					bgtz: NS = BranchS;
+					addi: NS = ADDIExecute;
+					j: NS = Jump;
+					default: NS = Fetch;
+				endcase
+			MemAdr:
+				case(op)
+					lw: NS = MemRead;
+					sw: NS = MemWriteS;
+				endcase
+			MemRead:
+				NS = MemWriteback;
+			MemWriteback:
+				NS = Fetch;
+			MemWriteS:
+				NS = Fetch;
+			Execute:
+				NS = Writeback;
+			Writeback:
+				NS = Fetch;
+			BranchS:
+				NS = Fetch;
+			ADDIExecute:
+				NS = ADDIWriteback;
+			ADDIWriteback:
+				NS = Fetch;
+			Jump:
+				NS = Fetch;
+		endcase
+	end
+	
+	always@(posedge clk,negedge rst_n)
+	begin
+		if(~rst_n)
+		begin
+			PCWrite <= 0;
+			Branch <= 0;
+			PCSrc <= 0;
+			IorD <= 0;
+			MemWrite <= 0;
+			IRWrite <= 0;
+			MemtoReg <= 0;
+			RegDst <= 0;
+			RegWrite <= 0;
+			ALUSrcA <= 0;
+			ALUSrcB <= 0;
+			ALUControl <= 0;
 		end
-	end
-	
-	always@(*)
-	begin
-		case(cur_state)
-			0:
-			begin
-				IorD=0;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=0;
-				ALUSrcA=0;
-				Branch=0;
-				PCWrite=0;
-				ALUSrcB=0;
-				ALUOp=0;
-				PCSrc=0;
-			end
-			1:
-			begin
-				IorD=0;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=0;
-				ALUSrcA=0;
-				Branch=0;
-				PCWrite=0;
-				ALUSrcB=3;
-				ALUOp=0;
-				PCSrc=0;
-			end
-			2:
-			begin
-				IorD=0;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=0;
-				ALUSrcA=1;
-				Branch=0;
-				PCWrite=0;
-				ALUSrcB=2;
-				ALUOp=0;
-				PCSrc=0;
-			end
-			3:
-			begin
-				IorD=1;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=0;
-				ALUSrcA=0;
-				Branch=0;
-				PCWrite=0;
-				ALUSrcB=0;
-				ALUOp=0;
-				PCSrc=0;
-			end
-			4:
-			begin
-				IorD=0;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=1;
-				RegWrite=1;
-				ALUSrcA=0;
-				Branch=0;
-				PCWrite=0;
-				ALUSrcB=0;
-				ALUOp=0;
-				PCSrc=0;
-			end
-			5:
-			begin
-				IorD=1;
-				MemWrite=1;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=0;
-				ALUSrcA=0;
-				Branch=0;
-				PCWrite=0;
-				ALUSrcB=0;
-				ALUOp=0;
-				PCSrc=0;
-			end
-			6:
-			begin
-				IorD=0;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=0;
-				ALUSrcA=1;
-				Branch=0;
-				PCWrite=0;
-				ALUSrcB=0;
-				ALUOp=2;
-				PCSrc=0;
-			end
-			7:
-			begin
-				IorD=0;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=1;
-				MemtoReg=0;
-				RegWrite=1;
-				ALUSrcA=0;
-				Branch=0;
-				PCWrite=0;
-				ALUSrcB=0;
-				ALUOp=0;
-				PCSrc=0;
-			end
-			8:
-			begin
-				IorD=0;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=0;
-				ALUSrcA=1;
-				Branch=1;
-				PCWrite=0;
-				ALUSrcB=0;
-				ALUOp=1;
-				PCSrc=1;
-			end
-			9:
-			begin
-				IorD=0;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=0;
-				ALUSrcA=1;
-				Branch=0;
-				PCWrite=0;
-				ALUSrcB=2;
-				ALUOp=0;
-				PCSrc=0;
-			end
-			10:
-			begin
-				IorD=0;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=1;
-				ALUSrcA=0;
-				Branch=0;
-				PCWrite=0;
-				ALUSrcB=0;
-				ALUOp=0;
-				PCSrc=0;
-			end
-			11:
-			begin
-				IorD=0;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=0;
-				ALUSrcA=0;
-				Branch=0;
-				PCWrite=1;
-				ALUSrcB=0;
-				ALUOp=0;
-				PCSrc=2;
-			end
-			12:
-			begin // wait mem
-				IorD=0;
-				MemWrite=0;
-				IRWrite=1;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=0;
-				ALUSrcA=0;
-				Branch=0;
-				PCWrite=1;
-				ALUSrcB=1;
-				ALUOp=0;
-				PCSrc=0;
-			end
-			default:
-			begin
-				IorD=0;
-				MemWrite=0;
-				IRWrite=0;
-				RegDst=0;
-				MemtoReg=0;
-				RegWrite=0;
-				ALUSrcA=0;
-				Branch=0;
-				PCWrite=0;
-				ALUSrcB=0;
-				ALUOp=0;
-				PCSrc=0;
-			end
-		endcase
-	end
-
-	parameter	OP_RTYPE = 6'h0;
-	parameter	OP_ADDI = 6'h8;
-	parameter	OP_LW   = 6'h23;
-	parameter	OP_SW   = 6'h2b;
-	parameter	OP_ADD  = 6'h0;
-	parameter	OP_BGTZ = 6'h7;
-	parameter	OP_J    = 6'h2;
-	
-	always@(*)
-	begin
-		case(cur_state)
-			0: next_state = 12; //wait mem
-			1:
-			begin
-				if(opcode == OP_LW || opcode == OP_SW) next_state = 2;
-				else if(opcode == OP_RTYPE) next_state = 6;
-				else if(opcode == OP_BGTZ) next_state = 8;
-				else if(opcode == OP_ADDI) next_state = 9;
-				else if(opcode == OP_J) next_state = 11;
-				else next_state = 0;
-			end
-			2:
-			begin
-				if(opcode == OP_LW) next_state = 3;
-				else next_state = 5;
-			end
-			3: next_state = 4;
-			6: next_state = 7;
-			9: next_state = 10;
-			12: next_state = 1;
-			default: next_state = 0;
-		endcase
+		else
+		begin
+			case(NS)
+				Idle:           //����
+				begin
+					PCWrite <= 0;
+					Branch <= 0;
+					PCSrc <= 0;
+					IorD <= 0;
+					MemWrite <= 0;
+					IRWrite <= 0;
+					MemtoReg <= 0;
+					RegDst <= 0;
+					RegWrite <= 0;
+					ALUSrcA <= 0;
+					ALUSrcB <= 0;
+					ALUControl <= 0;
+				end
+				Fetch:
+				begin
+					PCWrite <= 1;
+					Branch <= 0;
+					PCSrc <= 0;
+					IorD <= 0;
+					MemWrite <= 0;
+					IRWrite <= 0;
+					MemtoReg <= 0;
+					RegDst <= 0;
+					RegWrite <= 0;
+					ALUSrcA <= 0;
+					ALUSrcB <= 1;
+					ALUControl <= 1;
+				end
+				Ready:
+				begin
+					PCWrite <= 0;
+					IRWrite <= 1;
+				end
+				Decode:
+				begin
+					IRWrite <= 0;
+					ALUSrcA <= 0;
+					ALUSrcB <= 3;
+					ALUControl <= 1;
+				end
+				MemAdr:
+				begin
+					ALUSrcA <= 1;
+					ALUSrcB <= 2;
+					ALUControl <= 1;
+				end
+				MemRead:
+				begin
+					IorD <= 1;
+				end
+				MemWriteback:
+				begin
+					RegDst <= 0;
+					MemtoReg <= 1;
+					RegWrite <= 1;
+				end
+				MemWriteS:
+				begin
+					IorD <= 1;
+					MemWrite <= 1;
+				end
+				Execute:
+				begin
+					ALUSrcA <= 1;
+					ALUSrcB <= 0;
+					ALUControl <= 1;
+				end
+				Writeback:
+				begin
+					MemtoReg <= 0;
+					RegDst <= 1;
+					RegWrite <= 1;
+				end
+				BranchS:
+				begin
+					Branch <= 1;
+					PCSrc <= 1;
+					ALUSrcA <= 1;
+					ALUSrcB <= 0;
+					ALUControl <= 2;
+				end
+				ADDIExecute:
+				begin
+					ALUSrcA <= 1;
+					ALUSrcB <= 2;
+					ALUControl <= 1;
+				end
+				ADDIWriteback:
+				begin
+					MemtoReg <= 0;
+					RegDst <= 0;
+					RegWrite <= 1;
+				end
+				Jump:
+				begin
+					PCWrite <= 1;
+					PCSrc <= 2;
+				end
+			endcase
+		end
 	end
 
 endmodule
+

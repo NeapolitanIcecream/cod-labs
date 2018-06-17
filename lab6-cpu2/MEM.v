@@ -1,4 +1,4 @@
-module DM(
+module MEM(
     input wire clk,
     input wire wea,
     input wire [6:0] addra,

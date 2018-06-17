@@ -1,45 +1,30 @@
-`timescale 1ns / 1ps
-module ALU (
-    input   signed  [31:0]  alu_a,
-    input   signed  [31:0]  alu_b,
-    input           [2:0]   alu_op,
-    output  reg     [31:0]  alu_out,
-    output  zero
-);
+module ALU(
+    input signed [31:0]alu_a,
+	 input signed [31:0]alu_b,
+    input [4:0]alu_op,
+    output reg signed [31:0]alu_out
+    );
+	 
+	 parameter A_NOP = 5'h00;
+	 parameter A_ADD = 5'h01;
+	 parameter A_SUB = 5'h02;
+	 parameter A_AND = 5'h03;
+	 parameter A_OR  = 5'h04;
+	 parameter A_XOR = 5'h05;
+	 parameter A_NOR = 5'h06;
+	 
+	 always@(*)
+	 begin
+		case(alu_op)
+			A_NOP: alu_out=alu_out;          //nop
+			A_ADD: alu_out=alu_a+alu_b;      //add
+			A_SUB: alu_out=alu_a-alu_b;      //sub
+			A_AND: alu_out=alu_a&alu_b;      //and
+			A_OR : alu_out=alu_a|alu_b;      //or
+			A_XOR: alu_out=alu_a^alu_b;      //xor
+			A_NOR: alu_out=~(alu_a|alu_b);   //nor
+			default: alu_out=0;
+		endcase
+	end
 
-parameter	A_NOP = 3'b000;
-parameter	A_ADD = 3'b001;
-parameter	A_SUB = 3'b010;
-parameter	A_AND = 3'b011;
-parameter	A_OR  = 3'b100;
-parameter	A_XOR = 3'b101;
-parameter	A_NOR = 3'b110;
-parameter	A_GTZ = 3'b111;
-
-wire signed [31:0] alu_nop_out, alu_add_out, alu_sub_out, alu_and_out, alu_or_out, alu_xor_out, alu_nor_out, alu_gtz_out;
-
-assign alu_nop_out = 0;
-assign alu_add_out = alu_a + alu_b;
-assign alu_sub_out = alu_a - alu_b;
-assign alu_and_out = alu_a & alu_b;
-assign alu_or_out  = alu_a | alu_b;
-assign alu_xor_out = alu_a ^ alu_b;
-assign alu_nor_out = ~(alu_a | alu_b);
-assign alu_gtz_out = alu_a > 0 ? 1 : 0;
-assign zero = alu_gtz_out;
-
-always@(*) begin
-  case (alu_op)
-    A_NOP : alu_out <= alu_nop_out;
-    A_ADD : alu_out <= alu_add_out;
-    A_SUB : alu_out <= alu_sub_out;
-    A_AND : alu_out <= alu_and_out;
-    A_OR  : alu_out <= alu_or_out;
-    A_XOR : alu_out <= alu_xor_out;
-    A_NOR : alu_out <= alu_nor_out;
-    A_GTZ : alu_out <= alu_gtz_out;
-    default: alu_out <= alu_nop_out;
-  endcase
-end
-
-endmodule // ALU
+endmodule

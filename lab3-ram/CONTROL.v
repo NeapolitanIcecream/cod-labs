@@ -1,5 +1,3 @@
-`timescale 1ns / 1ps
-
 module CONTROL(
     input clk,
     input rst_n,
@@ -18,6 +16,8 @@ module CONTROL(
 );
 
     reg [3:0] period = 0;
+
+    integer i;
 
     // wait init
     reg init_done = 0;
@@ -40,7 +40,7 @@ module CONTROL(
         end
     end
     
-    reg [5:0] r1 = 0, r2 = 1, r3 = 2;
+    reg [9:0] r1 = 0, r2 = 1, r3 = 2;
 
     always@(negedge clk) begin
         if (init_done) begin
@@ -48,7 +48,7 @@ module CONTROL(
                 ram_raddr <= r1;
             end else if (period == 1) begin
                 // wait
-            end else if (period == 2) begin
+            end else if (period == 2) begin                
                 reg_waddr <= r1;
                 reg_wdata <= ram_out;
                 reg_wen <= 1;

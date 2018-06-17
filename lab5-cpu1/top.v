@@ -11,8 +11,7 @@ wire [4:0] WriteReg;
 
 
 IM imem_inst(PC >> 2, IR); // no write
-DM dmem_inst(ALUResult >> 2, Reg2, clk, MemWrite, MDR);
-DM dmem_inst(clk, MemWrite, )
+DM dmem_inst(clk, MemWrite, ALUResult >> 2, Reg2, ALUResult >> 2, MDR);
 
 assign WriteReg = RegDst ? IR[15:11] : IR[20:16];
 assign Result = MemToReg ? MDR : ALUResult;

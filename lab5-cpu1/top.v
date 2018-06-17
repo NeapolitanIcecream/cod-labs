@@ -1,4 +1,3 @@
-`timescale 1ns / 1ps
 module top(clk, rst_n);
 input clk, rst_n;
 
@@ -11,8 +10,9 @@ wire [31:0] Reg1, Reg2, SrcA, SrcB;
 wire [4:0] WriteReg;
 
 
-IMEM imem_inst(PC >> 2, 0, clk, 0, IR); // no write
-DMEM dmem_inst(ALUResult >> 2, Reg2, clk, MemWrite, MDR);
+IM imem_inst(PC >> 2, IR); // no write
+DM dmem_inst(ALUResult >> 2, Reg2, clk, MemWrite, MDR);
+DM dmem_inst(clk, MemWrite, )
 
 assign WriteReg = RegDst ? IR[15:11] : IR[20:16];
 assign Result = MemToReg ? MDR : ALUResult;

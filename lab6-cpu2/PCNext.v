@@ -1,4 +1,3 @@
-`timescale 1ns / 1ps
 module PCNext(
    PCSrc, ALUResult, ALUOut, PCJump, nextPC
 );

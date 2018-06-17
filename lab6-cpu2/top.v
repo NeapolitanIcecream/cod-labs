@@ -1,4 +1,3 @@
-`timescale 1ns / 1ps
 module top(clk, rst_n);
     input clk, rst_n;
 
@@ -27,8 +26,7 @@ module top(clk, rst_n);
     reg [WIDTH-1:0] PC, IR, A, B, ALUOut;
 
     // memory
-    MEM mem(Adr >> 2, B, clk, MemWrite, MDR);
-    MEM mem(clk, Adr, MDR, MemWrite, B)
+    DM mem1 (clk, MemWrite, Adr[8:2], B, Adr[8:2], MDR);
     // regfile
     Regfile regfile(
         .clk(clk), 
@@ -39,8 +37,7 @@ module top(clk, rst_n);
     );
 
     // ALU
-    wire [WIDTH-1:0] SrcA = ALUSrcA ? A : PC;
-    // Todo: Mux4_1 mux_4_1(SrcB, ALUSrcB, B, 4, SignImm, SignImm >> 2);
+    wire [WIDTH-1:0] SrcA = ALUSrcA ? A : PC;    
     wire [WIDTH-1:0] SrcB = ALUSrcB == 0 ? B : ALUSrcB == 1 ? 4 : ALUSrcB == 2 ? SignImm : (SignImm<<2);
     ALU alu(
         .alu_a(SrcA),

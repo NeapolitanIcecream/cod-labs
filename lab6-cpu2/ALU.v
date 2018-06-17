@@ -7,14 +7,14 @@ module ALU (
     output  zero
 );
 
-parameter	A_NOP = 3'h00;
-parameter	A_ADD = 3'h01;
-parameter	A_SUB = 3'h02;
-parameter	A_AND = 3'h03;
-parameter	A_OR  = 3'h04;
-parameter	A_XOR = 3'h05;
-parameter	A_NOR = 3'h06;
-parameter	A_GTZ = 3'h07;
+parameter	A_NOP = 3'b000;
+parameter	A_ADD = 3'b001;
+parameter	A_SUB = 3'b010;
+parameter	A_AND = 3'b011;
+parameter	A_OR  = 3'b100;
+parameter	A_XOR = 3'b101;
+parameter	A_NOR = 3'b110;
+parameter	A_GTZ = 3'b111;
 
 wire signed [31:0] alu_nop_out, alu_add_out, alu_sub_out, alu_and_out, alu_or_out, alu_xor_out, alu_nor_out, alu_gtz_out;
 
